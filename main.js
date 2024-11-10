@@ -1,15 +1,16 @@
 import './style.css';
 import branding from '/brand.svg';
+import backgroundImage from '/background-image.jpg';
 import openingReel from '/opening-reel.mp4';
 import secondReel from '/second-reel.mp4';
 import { gsap } from 'gsap';
 gsap.registerPlugin('ScrollTrigger');
 
 document.querySelector('#app').innerHTML = `
-  <section class="page page--1" data-active>
-    <div class="header">
-      <img src="${branding}" class="logo" alt="Electric & Press logo" />
-    </div>
+  <div class="header">
+    <img src="${branding}" class="logo" alt="Electric & Press logo" />
+  </div>
+  <section class="page page--1" data-active data-page-number="1">
     <div class="outer">
       <div class="inner">
         <h1 class="hero-heading">
@@ -46,7 +47,7 @@ document.querySelector('#app').innerHTML = `
       </div>
     </div>
   </section>
-  <section class="page page--2">
+  <section class="page page--2" data-page-number="2">
     <div class="outer outer--page-2">
       <div class="inner">
         <video class="background-video background-video--page-2" loop muted>
@@ -54,19 +55,23 @@ document.querySelector('#app').innerHTML = `
           Your browser does not support the video tag.
         </video>
         <div class="page-2__text-content">
-          <div class="page-2__heading-container white-box">
-            <h2 class="page-2__heading">Better clients.</h2>
+          <div class="page-2__heading-wrapper">
+            <div class="page-2__heading-container white-box">
+              <h2 class="page-2__heading">Better clients.</h2>
+            </div>
           </div>
-          <div class="body-content--page-2 white-box">
-            <p>
-              All clients of Electric & Press make a positive impact on society. We work to amplify and accelerate their impact through effective digital and physical media.
-            </p>
+          <div class="page-2__body-content-wrapper">
+            <div class="body-content--page-2 white-box">
+              <p>
+                All clients of Electric & Press make a positive impact on society. We work to amplify and accelerate their impact through effective digital and physical media.
+              </p>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </section>
-  <section class="page page--3">
+  <section class="page page--3" data-page-number="3">
     <div class="outer">
       <div class="inner">
         <video class="background-video background-video--page-3" loop muted>
@@ -74,25 +79,49 @@ document.querySelector('#app').innerHTML = `
           Your browser does not support the video tag.
         </video>
         <div class="page-3__text-content">
-          <div class="page-3__heading-container white-box">
-            <h2 class="page-3__heading">Better business.</h2>
+          <div class="page-3__heading-wrapper">
+            <div class="page-3__heading-container white-box">
+              <h2 class="page-3__heading">Better business.</h2>
+            </div>
           </div>
           <div class="body-content--page-3">
             <div class="body-content__line-1">
-              <p class="white-box white-box--1">
-                Total transparency.
-              </p>
-              <p class="white-box white-box--2">
-                Directly control your dollars.
-              </p>
+              <div class="page-3-text-1-wrapper page-3-text-wrapper">
+                <p class="white-box white-box--1">
+                  Total transparency.
+                </p>
+              </div>
+              <div class="page-3-text-2-wrapper page-3-text-wrapper">
+                <p class="white-box white-box--2">
+                  Directly control your dollars.
+                </p>
+              </div>
             </div>
             <div class="body-content__line-2">
-              <p class="white-box white-box--3">
-                Set pricing.
-              </p>
-              <p class="white-box white-box--4">
-                Industry leading working conditions.
-              </p>
+              <div class="page-3-text-3-wrapper page-3-text-wrapper">
+                <p class="white-box white-box--3">
+                  Set pricing.
+                </p>
+              </div>
+              <div class="page-3-text-4-wrapper page-3-text-wrapper">
+                <p class="white-box white-box--4">
+                  Industry leading working conditions.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="page page--4" data-page-number="4">
+    <div class="outer">
+      <div class="inner">
+        <img src="${backgroundImage}" class="background-video" alt="Placeholder for large video" />
+        <div class="page-4__text-content">
+          <div class="page-4__heading-wrapper">
+            <div class="page-4__heading-container white-box">
+              <h2 class="page-4__heading">Proven results.</h2>
             </div>
           </div>
         </div>
@@ -116,7 +145,8 @@ const touch = {
 };
 const root = document.documentElement;
 const body = document.body;
-const videoContainer = document.querySelector('.revolving-content__video');
+const page1 = document.querySelector('.page--1');
+const videoContainer = page1.querySelector('.revolving-content__video');
 const page2 = document.querySelector('.page--2');
 
 const durationFPS = (frames) => frames / 24;
@@ -125,7 +155,7 @@ const introAnimationOpts = {
   '--motion-blur': '0px',
 };
 
-const timeline = gsap.timeline({ delay: 0.5, autoRound: false });
+const timeline = gsap.timeline({ delay: 0.5 });
 timeline.to('.revolving-text__better', {
   ...introAnimationOpts,
   y: 0,
@@ -325,38 +355,33 @@ function handleKeydown(e) {
 function playAnimation() {
   const currentSection = document.querySelector('[data-active]');
   if (currentSection === sections[0]) {
-    zoomAnimation(videoContainer, page2);
-    // make all inside of animation callback
-    const nextSection = currentSection.nextElementSibling;
-    nextSection.setAttribute('data-active', '');
-    currentSection.removeAttribute('data-active');
+    zoomInAnimation();
+  } else if (currentSection === sections[1]) {
+    scrollDown();
+  } else if (currentSection === sections[2]) {
+    zooomOutToVideo();
   }
-  listening = true;
 }
 
 function reverseAnimation() {
   const currentSection = document.querySelector('[data-active]');
   if (currentSection === sections[1]) {
-    zoomAnimation(page2, videoContainer);
-    // make all inside of animation callback
-    const previousSection = currentSection.previousElementSibling;
-    previousSection.setAttribute('data-active', '');
-    currentSection.removeAttribute('data-active');
+    zoomOutAnimation();
+  } else if (currentSection === sections[2]) {
+    scrollUp();
+  } else if (currentSection === sections[3]) {
+    zoomInToVideo();
   }
-  listening = true;
 }
 
-function zoomAnimation(animateFrom, animateTo) {
+function zoomInAnimation() {
+  const animateFrom = videoContainer;
+  const animateTo = page2;
   const clone = animateFrom.cloneNode(true);
   const cloneVideo = clone.querySelector('video');
   clone.style.borderRadius = '7px';
   clone.style.overflow = 'hidden';
   cloneVideo.style.borderRadius = '7px';
-  const videoTime = animateFrom.querySelector('video').currentTime;
-  const endVideo = animateTo.querySelector('video');
-  cloneVideo.currentTime = videoTime;
-  endVideo.currentTime = videoTime;
-  endVideo.play();
 
   const from = calculatePosition(animateFrom);
   const to = calculatePosition(animateTo);
@@ -365,7 +390,7 @@ function zoomAnimation(animateFrom, animateTo) {
   gsap.set(clone, { position: 'absolute', margin: 0 });
 
   body.appendChild(clone);
-
+  gsap.set(clone, from);
   const style = {
     x: to.left - from.left,
     y: to.top - from.top,
@@ -373,29 +398,128 @@ function zoomAnimation(animateFrom, animateTo) {
     height: to.height,
     autoRound: false,
     ease: 'power2.Out',
-    onComplete: () => {
-      if (animateTo === page2) {
-        console.log('clone', clone);
-        gsap.to([clone, cloneVideo], {
-          borderRadius: '0px',
-          duation: durationFPS(5),
-          ease: 'power2.Out',
-          onComplete: onComplete,
-        });
-      } else {
-        onComplete();
-      }
-    },
+    filter: 'brightness(1.1)',
+    duration: durationFPS(18),
   };
+  const forwardTL = gsap.timeline();
+  forwardTL.to(clone, style);
+  const videoTime = animateFrom.querySelector('video').currentTime;
+  const endVideo = animateTo.querySelector('video');
+  cloneVideo.currentTime = videoTime;
+  endVideo.currentTime = videoTime;
+  endVideo.play();
+  forwardTL.set(page2, { visibility: 'visible' });
+  forwardTL.to(
+    clone,
+    {
+      duration: durationFPS(1),
+      ease: 'power2.Out',
+      borderRadius: '0px',
+      opacity: 0,
+      onComplete: () => {
+        body.removeChild(clone);
+      },
+    },
+    '<'
+  );
+  const page2HeadingContainer = page2.querySelector(
+    '.page-2__heading-container'
+  );
+  const page2BodyContent = page2.querySelector('.body-content--page-2');
+  forwardTL.to(page2HeadingContainer, {
+    ease: 'power2.out',
+    y: 0,
+    duration: durationFPS(8),
+  });
+  forwardTL.to(page2BodyContent, {
+    ease: 'power2.out',
+    y: 0,
+    duration: durationFPS(8),
+    onComplete: () => {
+      const nextSection = currentSection.nextElementSibling;
+      nextSection.setAttribute('data-active', '');
+      body.setAttribute('data-active-page', 'page-2');
+      currentSection.removeAttribute('data-active');
+      listening = true;
+    },
+  });
+}
 
+function zoomOutAnimation() {
+  const animateFrom = page2;
+  const animateTo = videoContainer;
+  const clone = animateFrom.cloneNode(true);
+  const cloneVideo = clone.querySelector('video');
+  clone.style.borderRadius = '7px';
+  clone.style.overflow = 'hidden';
+  cloneVideo.style.borderRadius = '7px';
+
+  const from = calculatePosition(animateFrom);
+  const to = calculatePosition(animateTo);
+
+  gsap.set([animateFrom, animateTo], { visibility: 'hidden' });
+  gsap.set(clone, { position: 'absolute', margin: 0 });
+
+  body.appendChild(clone);
   gsap.set(clone, from);
-  gsap.to(clone, durationFPS(18), style);
-
-  function onComplete() {
-    gsap.set(animateTo, { visibility: 'visible' });
-
-    body.removeChild(clone);
-  }
+  const style = {
+    x: to.left - from.left,
+    y: to.top - from.top,
+    width: to.width,
+    height: to.height,
+    autoRound: false,
+    ease: 'power2.Out',
+    filter: 'brightness(1.1)',
+    duration: durationFPS(18),
+  };
+  const cloneHeading = clone.querySelector('.page-2__heading-container');
+  const cloneBody = clone.querySelector('.body-content--page-2');
+  const reverseTL = gsap.timeline();
+  reverseTL.to(cloneBody, {
+    ease: 'power2.out',
+    yPercent: 150,
+    duration: durationFPS(8),
+  });
+  reverseTL.to(cloneHeading, {
+    ease: 'power2.out',
+    yPercent: -150,
+    duration: durationFPS(8),
+  });
+  reverseTL.to(
+    clone,
+    {
+      duration: durationFPS(5),
+      ease: 'power2.Out',
+      opacity: 1,
+    },
+    '<'
+  );
+  const videoTime = animateFrom.querySelector('video').currentTime;
+  const endVideo = animateTo.querySelector('video');
+  cloneVideo.currentTime = videoTime;
+  endVideo.currentTime = videoTime;
+  cloneVideo.play();
+  reverseTL.set(page2, { visibility: 'hidden' });
+  reverseTL.to(clone, {
+    ...style,
+    onComplete: () => {
+      body.removeChild(clone);
+      gsap.set(animateTo, { visibility: 'visible' });
+      const page2BodyContent = page2.querySelector('.body-content--page-2');
+      const page2HeadingContainer = page2.querySelector(
+        '.page-2__heading-container'
+      );
+      gsap.set(page2BodyContent, { clearProps: 'all' });
+      gsap.set(page2HeadingContainer, { clearProps: 'all' });
+      gsap.set(page2, { clearProps: 'all' });
+      const currentSection = document.querySelector('[data-active]');
+      const previousSection = currentSection.previousElementSibling;
+      previousSection.setAttribute('data-active', '');
+      body.setAttribute('data-active-page', 'page-1');
+      currentSection.removeAttribute('data-active');
+      listening = true;
+    },
+  });
 }
 
 function calculatePosition(element) {
@@ -415,3 +539,153 @@ function calculatePosition(element) {
     width: rect.width,
   };
 }
+
+function scrollDown() {
+  const currentSection = document.querySelector('[data-active]');
+  const nextSection = currentSection.nextElementSibling;
+  const nextPageNumber = nextSection.dataset.pageNumber;
+  nextSection.setAttribute('data-active', '');
+  nextSection.style.visibility = 'visible';
+  gsap.to(currentSection, {
+    yPercent: -100,
+    duration: durationFPS(16),
+    ease: 'power2.out',
+  });
+  const video = nextSection.querySelector('video');
+  video.play();
+  gsap.to(
+    nextSection,
+    {
+      y: 0,
+      duration: durationFPS(16),
+      ease: 'power2.out',
+      onStart: () => {
+        console.log('nextPageNumber', nextPageNumber);
+        timelines[nextPageNumber].timeline.play().delay(durationFPS(9));
+      },
+      onComplete: () => {
+        currentSection.removeAttribute('data-active');
+        gsap.set(currentSection, { clearProps: 'all' });
+
+        listening = true;
+      },
+    },
+    '<'
+  );
+}
+
+function scrollUp() {
+  const currentSection = document.querySelector('[data-active]');
+  const previousSection = currentSection.previousElementSibling;
+  previousSection.setAttribute('data-active', '');
+  previousSection.style.visibility = 'visible';
+  const pageNumber = currentSection.dataset.pageNumber;
+  timelines[pageNumber].timeline.delay(0);
+  timelines[pageNumber].timeline
+    .reverse()
+    .eventCallback('onReverseComplete', () => {
+      timelines[pageNumber].elements.forEach((element) => {
+        console.log('element', element);
+        gsap.set(element, { clearProps: 'all' });
+      });
+      gsap.to(currentSection, {
+        yPercent: 100,
+        duration: durationFPS(16),
+        ease: 'power2.out',
+      });
+      const video = previousSection.querySelector('video');
+      if (video) {
+        video.play();
+      }
+      gsap.to(
+        previousSection,
+        {
+          yPercent: 0,
+          duration: durationFPS(16),
+          ease: 'power2.out',
+          onComplete: () => {
+            currentSection.removeAttribute('data-active');
+            gsap.set(currentSection, { clearProps: 'all' });
+            listening = true;
+          },
+        },
+        '<'
+      );
+      currentSection.removeAttribute('data-active');
+    });
+}
+
+function zooomOutToVideo() {
+  const currentSection = document.querySelector('[data-active]');
+  const nextSection = currentSection.nextElementSibling;
+  const nextPageNumber = nextSection.dataset.pageNumber;
+  nextSection.setAttribute('data-active', '');
+  nextSection.style.visibility = 'visible';
+  timelines[nextPageNumber].timeline.play();
+}
+
+const timeline3 = gsap
+  .timeline({ paused: true })
+  .to('.page-3__heading-container', {
+    y: 0,
+    duration: durationFPS(8),
+    ease: 'power2.out',
+  })
+  .to('.white-box--1', {
+    y: 0,
+    duration: durationFPS(8),
+    ease: 'power2.out',
+  })
+  .to('.white-box--2', {
+    y: 0,
+    duration: durationFPS(8),
+    ease: 'power2.out',
+  })
+  .to('.white-box--3', {
+    y: 0,
+    duration: durationFPS(8),
+    ease: 'power2.out',
+  })
+  .to('.white-box--4', {
+    y: 0,
+    duration: durationFPS(8),
+    ease: 'power2.out',
+  });
+
+const page3Elements = [
+  '.page-3__heading-container',
+  '.white-box--1',
+  '.white-box--2',
+  '.white-box--3',
+  '.white-box--4',
+];
+const timeline4 = gsap
+  .timeline({ paused: true })
+  .to('.background-video--page-3', {
+    scale: 207 / 949,
+    duration: durationFPS(8),
+    ease: 'power2.out',
+  })
+  .to('.page--3', {
+    opacity: 0,
+    duration: durationFPS(8),
+    ease: 'power2.out',
+  })
+  .to('.page-4__heading-container', {
+    y: 0,
+    duration: durationFPS(8),
+    ease: 'power2.out',
+  });
+
+const page4Elements = ['.background-video--page-3'];
+const timelines = {
+  3: {
+    timeline: timeline3,
+    elements: page3Elements,
+  },
+  4: {
+    timeline: timeline4,
+    elements: page4Elements,
+  },
+  5: gsap.timeline({ paused: true }),
+};

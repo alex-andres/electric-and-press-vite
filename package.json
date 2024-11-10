@@ -15,6 +15,7 @@
     "vite-plugin-minify": "^2.0.1"
   },
   "dependencies": {
-    "gsap": "file:gsap-bonus.tgz"
+    "gsap": "file:gsap-bonus.tgz",
+    "swiper": "^11.1.14"
   }
 }
