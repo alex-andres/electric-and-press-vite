@@ -151,7 +151,7 @@ body:not([data-active-page='page-1']) .logo {
   height: 255px;
   flex-direction: column;
   row-gap: 61px;
-  transform: translateY(150%);
+  transform: translateY(101%);
   --motion-blur: 8.2px;
   filter: blur(var(--motion-blur));
 }
@@ -162,7 +162,7 @@ body:not([data-active-page='page-1']) .logo {
 }
 
 .revolving-text {
-  transform: translateY(150%);
+  transform: translateY(101%);
   display: block;
 }
 
@@ -172,7 +172,7 @@ body:not([data-active-page='page-1']) .logo {
 
 .revolving-text__better {
   --motion-blur: 8.2px;
-  transform: translateY(150%);
+  transform: translateY(101%);
   filter: blur(var(--motion-blur));
 }
 
@@ -212,7 +212,7 @@ body:not([data-active-page='page-1']) .logo {
 .body-content--page-1 {
   --motion-blur: 8.2px;
   filter: blur(var(--motion-blur));
-  transform: translateY(150%);
+  transform: translateY(130%);
 
   p {
     font-style: italic;
@@ -259,7 +259,7 @@ h2 {
 .page-2__heading-container {
   width: 436px;
   margin-bottom: 11px;
-  transform: translateY(150%);
+  transform: translateY(101%);
 }
 
 .page-2__heading-wrapper {
@@ -268,7 +268,7 @@ h2 {
 
 .body-content--page-2 {
   width: 436px;
-  transform: translateY(-150%);
+  transform: translateY(-101%);
 }
 
 .page-2__body-content-wrapper {
@@ -299,7 +299,7 @@ h2 {
 }
 
 .page-3__heading-container {
-  transform: translateY(150%);
+  transform: translateY(101%);
 }
 
 .body-content--page-3 {
@@ -366,7 +366,7 @@ h2 {
   overflow: hidden;
 
   p {
-    transform: translateY(-150%);
+    transform: translateY(-101%);
   }
 }
 
@@ -379,6 +379,6 @@ h2 {
   overflow: hidden;
 }
 .page-4__heading-container {
-  transform: translateY(150%);
+  transform: translateY(101%);
   width: 430px;
 }

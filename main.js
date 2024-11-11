@@ -4,7 +4,8 @@ import backgroundImage from '/background-image.jpg';
 import openingReel from '/opening-reel.mp4';
 import secondReel from '/second-reel.mp4';
 import { gsap } from 'gsap';
-gsap.registerPlugin('ScrollTrigger');
+import { Observer } from 'gsap/Observer';
+gsap.registerPlugin(Observer);
 
 document.querySelector('#app').innerHTML = `
   <div class="header">
@@ -151,7 +152,7 @@ const page2 = document.querySelector('.page--2');
 
 const durationFPS = (frames) => frames / 24;
 const introAnimationOpts = {
-  ease: 'power2.out',
+  ease: 'power1.out',
   '--motion-blur': '0px',
 };
 
@@ -174,7 +175,7 @@ timeline.to(
 timeline.to(
   '.revolving-content__container',
   {
-    ease: 'power2.out',
+    ease: 'power1.out',
     y: '-336px',
     duration: durationFPS(9),
   },
@@ -198,7 +199,7 @@ timeline.to(
 timeline.to(
   '.revolving-content__container',
   {
-    ease: 'power2.out',
+    ease: 'power1.out',
     y: '-662px',
     duration: durationFPS(11),
   },
@@ -220,7 +221,7 @@ timeline.to(
 timeline.to(
   '.revolving-content__container',
   {
-    ease: 'power2.out',
+    ease: 'power1.out',
     y: '-988px',
     duration: durationFPS(11),
   },
@@ -276,17 +277,13 @@ timeline.to('.body-content--page-1', {
   y: 0,
   duration: durationFPS(8),
   onComplete: () => {
-    addScrollListeners();
     listening = true;
+    addScrollListeners();
   },
 });
 
 const sections = document.querySelectorAll('section');
-const outerWrappers = gsap.utils.toArray('.outer');
-const innerWrappers = gsap.utils.toArray('.inner');
-let initial = 0;
-let currentSection = sections[initial];
-
+let currentSection = sections[0];
 function addScrollListeners() {
   document.addEventListener('wheel', handleWheel);
   document.addEventListener('touchstart', handleTouchStart);
@@ -295,26 +292,32 @@ function addScrollListeners() {
   document.addEventListener('keydown', handleKeydown);
 }
 
-function handleDirection() {
+function handleDirection(e, passedSection) {
   listening = false;
+  const currentSection = document.querySelector('[data-active]');
+  const currentSectionPageNumber = currentSection.dataset.pageNumber;
+
+  const passedSectionPageNumber = passedSection.dataset.pageNumber;
+
+  if (Math.abs(passedSectionPageNumber - currentSectionPageNumber) > 1) {
+    listening = true;
+    return;
+  }
 
   if (direction === 'down') {
-    next = current + 1;
-    if (next >= sections.length) next = 0;
-    playAnimation(currentSection);
+    playAnimation();
   }
 
   if (direction === 'up') {
-    next = current - 1;
-    if (next < 0) next = sections.length - 1;
-    reverseAnimation(currentSection);
+    reverseAnimation();
   }
 }
 
 function handleWheel(e) {
   if (!listening) return;
   direction = e.wheelDeltaY < 0 ? 'down' : 'up';
-  handleDirection();
+  const currentSection = document.querySelector('[data-active]');
+  handleDirection(e, currentSection);
 }
 
 function handleTouchStart(e) {
@@ -336,8 +339,8 @@ function handleTouchEnd(e) {
   touch.dy = t.pageY - touch.startY;
   if (touch.dy > 10) direction = 'up';
   if (touch.dy < -10) direction = 'down';
-  handleDirection();
-  console.log('touch end');
+  const currentSection = document.querySelector('[data-active]');
+  handleDirection(e, currentSection);
 }
 
 function handleKeydown(e) {
@@ -349,21 +352,28 @@ function handleKeydown(e) {
   } else {
     return;
   }
-  handleDirection();
+  const currentSection = document.querySelector('[data-active]');
+  handleDirection(e, currentSection);
+  handleDirection(e);
 }
 
 function playAnimation() {
+  listening = false;
   const currentSection = document.querySelector('[data-active]');
   if (currentSection === sections[0]) {
     zoomInAnimation();
   } else if (currentSection === sections[1]) {
     scrollDown();
   } else if (currentSection === sections[2]) {
-    zooomOutToVideo();
+    zoomOutToVideo();
+  } else {
+    listening = true;
+    return;
   }
 }
 
 function reverseAnimation() {
+  listening = false;
   const currentSection = document.querySelector('[data-active]');
   if (currentSection === sections[1]) {
     zoomOutAnimation();
@@ -371,6 +381,9 @@ function reverseAnimation() {
     scrollUp();
   } else if (currentSection === sections[3]) {
     zoomInToVideo();
+  } else {
+    listening = true;
+    return;
   }
 }
 
@@ -397,7 +410,7 @@ function zoomInAnimation() {
     width: to.width,
     height: to.height,
     autoRound: false,
-    ease: 'power2.Out',
+    ease: 'none',
     filter: 'brightness(1.1)',
     duration: durationFPS(18),
   };
@@ -413,7 +426,7 @@ function zoomInAnimation() {
     clone,
     {
       duration: durationFPS(1),
-      ease: 'power2.Out',
+      ease: 'power1.Out',
       borderRadius: '0px',
       opacity: 0,
       onComplete: () => {
@@ -426,13 +439,18 @@ function zoomInAnimation() {
     '.page-2__heading-container'
   );
   const page2BodyContent = page2.querySelector('.body-content--page-2');
-  forwardTL.to(page2HeadingContainer, {
-    ease: 'power2.out',
-    y: 0,
-    duration: durationFPS(8),
-  });
+  forwardTL.to(
+    page2HeadingContainer,
+    {
+      ease: 'none',
+      y: 0,
+      duration: durationFPS(8),
+      delay: durationFPS(-1),
+    },
+    `<`
+  );
   forwardTL.to(page2BodyContent, {
-    ease: 'power2.out',
+    ease: 'none',
     y: 0,
     duration: durationFPS(8),
     onComplete: () => {
@@ -468,7 +486,7 @@ function zoomOutAnimation() {
     width: to.width,
     height: to.height,
     autoRound: false,
-    ease: 'power2.Out',
+    ease: 'power1.Out',
     filter: 'brightness(1.1)',
     duration: durationFPS(18),
   };
@@ -476,20 +494,20 @@ function zoomOutAnimation() {
   const cloneBody = clone.querySelector('.body-content--page-2');
   const reverseTL = gsap.timeline();
   reverseTL.to(cloneBody, {
-    ease: 'power2.out',
-    yPercent: 150,
+    ease: 'none',
+    yPercent: 101,
     duration: durationFPS(8),
   });
   reverseTL.to(cloneHeading, {
-    ease: 'power2.out',
-    yPercent: -150,
+    ease: 'none',
+    yPercent: -101,
     duration: durationFPS(8),
   });
   reverseTL.to(
     clone,
     {
       duration: durationFPS(5),
-      ease: 'power2.Out',
+      ease: 'power1.Out',
       opacity: 1,
     },
     '<'
@@ -517,6 +535,7 @@ function zoomOutAnimation() {
       previousSection.setAttribute('data-active', '');
       body.setAttribute('data-active-page', 'page-1');
       currentSection.removeAttribute('data-active');
+
       listening = true;
     },
   });
@@ -544,30 +563,29 @@ function scrollDown() {
   const currentSection = document.querySelector('[data-active]');
   const nextSection = currentSection.nextElementSibling;
   const nextPageNumber = nextSection.dataset.pageNumber;
-  nextSection.setAttribute('data-active', '');
   nextSection.style.visibility = 'visible';
-  gsap.to(currentSection, {
-    yPercent: -100,
-    duration: durationFPS(16),
-    ease: 'power2.out',
-  });
   const video = nextSection.querySelector('video');
   video.play();
-  gsap.to(
+  const scrollTimeline = gsap.timeline();
+  scrollTimeline.to(currentSection, {
+    yPercent: -100,
+    duration: durationFPS(24),
+    ease: 'power1.out',
+  });
+
+  scrollTimeline.to(
     nextSection,
     {
       y: 0,
-      duration: durationFPS(16),
-      ease: 'power2.out',
+      duration: durationFPS(24),
+      ease: 'power1.out',
       onStart: () => {
-        console.log('nextPageNumber', nextPageNumber);
         timelines[nextPageNumber].timeline.play().delay(durationFPS(9));
       },
       onComplete: () => {
         currentSection.removeAttribute('data-active');
-        gsap.set(currentSection, { clearProps: 'all' });
-
-        listening = true;
+        nextSection.setAttribute('data-active', '');
+        gsap.set(page2, { clearProps: 'all' });
       },
     },
     '<'
@@ -585,13 +603,12 @@ function scrollUp() {
     .reverse()
     .eventCallback('onReverseComplete', () => {
       timelines[pageNumber].elements.forEach((element) => {
-        console.log('element', element);
         gsap.set(element, { clearProps: 'all' });
       });
       gsap.to(currentSection, {
         yPercent: 100,
-        duration: durationFPS(16),
-        ease: 'power2.out',
+        duration: durationFPS(24),
+        ease: 'power1.out',
       });
       const video = previousSection.querySelector('video');
       if (video) {
@@ -601,11 +618,12 @@ function scrollUp() {
         previousSection,
         {
           yPercent: 0,
-          duration: durationFPS(16),
-          ease: 'power2.out',
+          duration: durationFPS(24),
+          ease: 'power1.out',
           onComplete: () => {
             currentSection.removeAttribute('data-active');
             gsap.set(currentSection, { clearProps: 'all' });
+
             listening = true;
           },
         },
@@ -615,13 +633,27 @@ function scrollUp() {
     });
 }
 
-function zooomOutToVideo() {
+function zoomOutToVideo() {
   const currentSection = document.querySelector('[data-active]');
   const nextSection = currentSection.nextElementSibling;
+  const { pageNumber } = currentSection.dataset;
   const nextPageNumber = nextSection.dataset.pageNumber;
+  currentSection.removeAttribute('data-active');
   nextSection.setAttribute('data-active', '');
   nextSection.style.visibility = 'visible';
   timelines[nextPageNumber].timeline.play();
+}
+function zoomInToVideo() {
+  const currentSection = document.querySelector('[data-active]');
+  const previousSection = currentSection.previousElementSibling;
+  previousSection.setAttribute('data-active', '');
+  previousSection.style.visibility = 'visible';
+  currentSection.removeAttribute('data-active');
+  const pageNumber = currentSection.dataset.pageNumber;
+  timelines[pageNumber].timeline.reverse();
+  timelines[pageNumber].timeline.eventCallback('onReverseComplete', () => {
+    currentSection.removeAttribute('style');
+  });
 }
 
 const timeline3 = gsap
@@ -629,27 +661,30 @@ const timeline3 = gsap
   .to('.page-3__heading-container', {
     y: 0,
     duration: durationFPS(8),
-    ease: 'power2.out',
+    ease: 'power1.out',
   })
   .to('.white-box--1', {
     y: 0,
     duration: durationFPS(8),
-    ease: 'power2.out',
+    ease: 'power1.out',
   })
   .to('.white-box--2', {
     y: 0,
     duration: durationFPS(8),
-    ease: 'power2.out',
+    ease: 'power1.out',
   })
   .to('.white-box--3', {
     y: 0,
     duration: durationFPS(8),
-    ease: 'power2.out',
+    ease: 'power1.out',
   })
   .to('.white-box--4', {
     y: 0,
     duration: durationFPS(8),
-    ease: 'power2.out',
+    ease: 'power1.out',
+  })
+  .eventCallback('onComplete', () => {
+    listening = true;
   });
 
 const page3Elements = [
@@ -661,23 +696,43 @@ const page3Elements = [
 ];
 const timeline4 = gsap
   .timeline({ paused: true })
-  .to('.background-video--page-3', {
-    scale: 207 / 949,
+  .to('.page-3__text-content', {
+    scale: 949 / 207,
+    opacity: 0,
     duration: durationFPS(8),
-    ease: 'power2.out',
+    ease: 'power1.out',
   })
+  .to(
+    '.background-video--page-3',
+    {
+      scale: 207 / 949,
+      duration: durationFPS(8),
+      ease: 'power1.out',
+    },
+    '<'
+  )
   .to('.page--3', {
     opacity: 0,
     duration: durationFPS(8),
-    ease: 'power2.out',
+    ease: 'power1.out',
   })
   .to('.page-4__heading-container', {
     y: 0,
     duration: durationFPS(8),
-    ease: 'power2.out',
+    ease: 'power1.out',
+  })
+  .eventCallback('onComplete', () => {
+    listening = true;
+  })
+  .eventCallback('onReverseComplete', () => {
+    listening = true;
   });
 
-const page4Elements = ['.background-video--page-3'];
+const page4Elements = [
+  '.background-video--page-3',
+  '.page--3',
+  '.page-4__heading-container',
+];
 const timelines = {
   3: {
     timeline: timeline3,
@@ -687,5 +742,4 @@ const timelines = {
     timeline: timeline4,
     elements: page4Elements,
   },
-  5: gsap.timeline({ paused: true }),
 };
